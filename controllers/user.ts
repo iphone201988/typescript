@@ -5,23 +5,27 @@ import OTP from "otp-generator";
 import { sendMail } from "../utils/sendmail.js";
 import { ErroHandler } from "../utils/errorHandler.js";
 import { NextFunction, Request, Response } from "express";
+import { UserType } from "../types/Database/user.js";
+import { userApi } from "../types/API/User/type.js";
 
-export async function registerUser(req:Request, res:Response,next:NextFunction) {
+export async function registerUser(req:Request<{},{},userApi>, res:Response,next:NextFunction) {
   console.log("hiiiiii",req.file);
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role,deviceType,deviceToken } = req.body;
     console.log("2");
     let profilePhoto = null
     if(req.file){
       profilePhoto =`image/${req.file.filename}`
     }
     const hashedPassword = await bcrypt.hash(password, 8);
-    const user = await User.create({
+    const user:UserType = await User.create({
       name,
       email,
       password: hashedPassword,
       role,
-      profilePhoto
+      profilePhoto,
+      deviceType,
+      deviceToken
     });
     const otp = OTP.generate(6, {
       digits: true,
@@ -48,9 +52,9 @@ export async function registerUser(req:Request, res:Response,next:NextFunction) 
   }
 }
 
-export async function loginUser(req:Request, res:Response,next:NextFunction) {
+export async function loginUser(req:Request<{},{},userApi>, res:Response,next:NextFunction) {
   try {
-    const { email, password } = req.body;
+    const { email, password,deviceType,deviceToken } = req.body;
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -63,6 +67,8 @@ export async function loginUser(req:Request, res:Response,next:NextFunction) {
         lowerCaseAlphabets: false,
         specialChars: false,
       });
+      user.deviceToken=deviceToken
+      user.deviceType=deviceType
       user.otpForVerify = otp;
       user.otpForVerifyExpires = new Date(Date.now() + 15 * 60 * 1000);
       await user.save();
@@ -83,7 +89,7 @@ export async function loginUser(req:Request, res:Response,next:NextFunction) {
     }
     const token = JWT.sign(
       {
-        id: user.id,
+        id: user._id,
         email: user.email,
         role: user.role,
       },
@@ -94,14 +100,11 @@ export async function loginUser(req:Request, res:Response,next:NextFunction) {
       token,
     });
   } catch (error) {
-    // return res.status(400).json({
-    //   error: error.message,
-    // });
     next(error)
   }
 }
 
-export async function forgetPassword(req:Request, res:Response,next:NextFunction) {
+export async function forgetPassword(req:Request<{},{},userApi>, res:Response,next:NextFunction) {
   try { 
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -134,7 +137,7 @@ export async function forgetPassword(req:Request, res:Response,next:NextFunction
   }
 }
 
-export async function verifyOtp(req:Request, res:Response,next:NextFunction) {
+export async function verifyOtp(req:Request<{},{},userApi>, res:Response,next:NextFunction) {
   try {
     const { email, otp } = req.body;
     const user = await User.findOne({ email });
@@ -168,7 +171,7 @@ export async function verifyOtp(req:Request, res:Response,next:NextFunction) {
   }
 }
 
-export async function resetPassword(req:Request, res:Response,next:NextFunction) {
+export async function resetPassword(req:Request<{},{},userApi>, res:Response,next:NextFunction) {
   try {
     const { email, newPassword } = req.body;
     const user = await User.findOne({ email });

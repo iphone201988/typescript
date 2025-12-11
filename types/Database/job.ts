@@ -1,4 +1,6 @@
-export interface JobType{
+import { Document } from "mongoose";
+
+export interface JobType extends Document{
     title:string,
     pickup:string,
     drop:string,

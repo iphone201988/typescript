@@ -6,12 +6,12 @@ export const auth = (req:Request, res:Response,next:NextFunction) => {
     try {
         const authHeader = req.headers.authorization
     if(!authHeader){
-        return next(new ErroHandler("authHeader is missing", 400))
+        return next(new ErroHandler("AuthHeader is missing", 400))
     }
 
     const parts = authHeader.split(" ")
     if(parts.length !== 2 || parts[0] !== "Bearer"){
-        return next(new ErroHandler("auth format is incorrect", 400))
+        return next(new ErroHandler("Auth format is incorrect", 400))
     }
 
     const token = parts[1]

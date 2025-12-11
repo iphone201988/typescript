@@ -1,5 +1,5 @@
 import { model,Schema } from "mongoose";
-import { JobType } from "../types/type.js";
+import { JobType } from "../types/Database/job.js";
 
 const jobSchema = new Schema<JobType>({
     title:{

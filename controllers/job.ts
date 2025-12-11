@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { Job } from "../models/job.js";
 import { ErroHandler } from "../utils/errorHandler.js";
 import mongoose from "mongoose";
+import { jobApi } from "../types/API/Job/type.js";
 
 export async function createJob(
-  req: Request,
+  req: Request<{}, {}, jobApi>,
   res: Response,
   next: NextFunction
 ) {
@@ -33,7 +34,7 @@ export async function createJob(
 }
 
 export async function updateJob(
-  req: Request,
+  req: Request<{ id: string }, {}, jobApi>,
   res: Response,
   next: NextFunction
 ) {
@@ -69,7 +70,7 @@ export async function updateJob(
 }
 
 export async function deleteJob(
-  req: Request,
+  req: Request<{ id: string }, {}, {}>,
   res: Response,
   next: NextFunction
 ) {
@@ -119,7 +120,7 @@ export async function allJob(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function applyJob(
-  req: Request,
+  req: Request<{id:string},{},{}>,
   res: Response,
   next: NextFunction
 ) {
@@ -156,7 +157,7 @@ export async function applyJob(
 }
 
 export async function selectDriver(
-  req: Request,
+  req: Request<{},{},{}>,
   res: Response,
   next: NextFunction
 ) {
@@ -169,11 +170,8 @@ export async function selectDriver(
     if (role != "Customer") {
       return next(new ErroHandler("only customer can select the driver", 400));
     }
-    interface JobType{
-
-    }
-    const job= await Job.findById(id);
-    console.log(job)
+    const job = await Job.findById(id);
+    console.log(job);
     // What if job not found?
     if (!job) {
       return next(new ErroHandler("job not found", 400));
@@ -197,7 +195,7 @@ export async function selectDriver(
 }
 
 export async function taskCompleteStatus(
-  req: Request,
+  req: Request<{},{},{}>,
   res: Response,
   next: NextFunction
 ) {
@@ -233,7 +231,7 @@ export async function taskCompleteStatus(
 
 /// getJObBYId
 export async function getJobById(
-  req: Request,
+  req: Request<{id:string},{},{}>,
   res: Response,
   next: NextFunction
 ) {

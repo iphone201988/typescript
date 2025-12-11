@@ -1,6 +1,8 @@
 import { model, Schema } from "mongoose";
+import { UserType } from "../types/Database/user.js";
+import { StringDecoder } from "string_decoder";
 
-const userSchema = new Schema(
+const userSchema = new Schema<UserType>(
   {
     name: {
       type: String,
@@ -24,7 +26,7 @@ const userSchema = new Schema(
       type:String
     },
     otpForVerify: {
-      type: String,
+      type:String,
     },
     otpForVerifyExpires: {
       type: Date,
@@ -39,9 +41,16 @@ const userSchema = new Schema(
       type:String,
       enum:["forRegister","forForgetPassword"],
       default:"forRegister"
+    },
+    deviceToken:{
+      type:String
+    },
+    deviceType:{
+      type:String
     }
   },
   { timestamps: true }
 );
 
-export const User =  model("user", userSchema);
+export const User =  model<UserType>("user", userSchema);
+ 
